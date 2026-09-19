@@ -286,6 +286,13 @@ function drawPause(){
 }
 
 function drawCutscene(){
+ ctx.fillStyle="rgba(0,0,0,.65)";
+ ctx.fillRect(650,425,230,55);
+ ctx.fillStyle="#fff";
+ ctx.font="bold 22px Arial";
+ ctx.textAlign="center";
+ ctx.fillText(cutFrame>=17?"CONTINUAR JOGO":"CONTINUAR",765,460);
+ ctx.textAlign="left";
  rect(0,0,W,H,"#11131b");
  const n=`cutscene${cutFrame+1}.png`;
  if(!drawImg(n,0,0,W,H)){
@@ -334,6 +341,9 @@ canvas.addEventListener("pointerdown",e=>{
 });
 
 function keyDown(k){
+ // Durante a cutscene, qualquer toque/clique avança para a próxima imagem.
+ // Assim também é possível sair da cutscene no telemóvel.
+ if(state==="cutscene") return advanceCutscene();
  if(k==="a"||k==="arrowleft")keys.left=true;
  if(k==="d"||k==="arrowright")keys.right=true;
  if(k===" "||k==="w"||k==="arrowup")keys.jump=true;
@@ -342,14 +352,25 @@ function keyDown(k){
    if(state==="game"||state==="scenario2") state="pause";
    else if(state==="pause") state="game";
  }
- if(state==="cutscene"){
-   if(k==="arrowright"){
-     cutFrame++;
-     if(cutFrame>=18){state="construction";cutTimer=0}
-   }
-   if(k==="arrowleft")cutFrame=Math.max(0,cutFrame-1);
- }
 }
+function advanceCutscene(){
+ cutFrame++;
+ if(cutFrame>=18){state="construction";cutTimer=0;cutFrame=0;}
+}
+
+// Botão CONTINUAR da cutscene (PC + telemóvel)
+canvas.addEventListener("pointerdown",e=>{
+ const r=canvas.getBoundingClientRect();
+ const x=(e.clientX-r.left)*W/r.width;
+ const y=(e.clientY-r.top)*H/r.height;
+ if(state==="cutscene"){
+   // botão grande no canto inferior direito
+   if(x>=650 && y>=425){ advanceCutscene(); return; }
+   // tocar em qualquer parte também avança
+   advanceCutscene();
+   return;
+ }
+});
 function keyUp(k){
  if(k==="a"||k==="arrowleft")keys.left=false;
  if(k==="d"||k==="arrowright")keys.right=false;
