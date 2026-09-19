@@ -52,6 +52,7 @@ let lives=3;
 let shootCooldown=0;
 let doorMsg=0;
 let hitFlash=0;
+let pausedFrom="game";
 
 const images={};
 const imageNames=[
@@ -461,7 +462,7 @@ function drawMenu(){
 }
 
 function drawPause(){
- drawWorld();
+ if(pausedFrom==="scenario2") drawScenario2(); else drawWorld();
  rect(0,0,W,H,"#000000aa");
  text("JOGO PAUSADO",W/2,120,40,"#fff","center");
  button(330,180,240,50,"CONTINUAR","#009b60");
@@ -525,7 +526,7 @@ function handlePointer(x,y){
  if(state==="menu"){
    if(x>=350&&x<=550&&y>=225&&y<=285) startGame();
  }else if(state==="pause"){
-   if(x>=330&&x<=570&&y>=180&&y<=230) state="game";
+   if(x>=330&&x<=570&&y>=180&&y<=230) state=pausedFrom;
    else if(x>=330&&x<=570&&y>=250&&y<=300) {state="menu";resetPlayer()}
    else if(x>=330&&x<=570&&y>=320&&y<=370) state="menu";
  }else if(state==="gameover"){
@@ -554,8 +555,8 @@ function keyDown(k){
  if(k==="e")keys.interact=true;
  if(k==="f" && state==="game") fireBullet();
  if(k==="escape"){
-   if(state==="game"||state==="scenario2") state="pause";
-   else if(state==="pause") state="game";
+   if(state==="game"||state==="scenario2"){ pausedFrom=state; state="pause"; }
+   else if(state==="pause") state=pausedFrom;
  }
 }
 function advanceCutscene(){
@@ -593,8 +594,8 @@ document.getElementById("shoot").addEventListener("pointerdown",e=>{
 });
 document.getElementById("pauseTouch").addEventListener("pointerdown",e=>{
  e.preventDefault();
- if(state==="game"||state==="scenario2")state="pause";
- else if(state==="pause")state="game";
+ if(state==="game"||state==="scenario2"){ pausedFrom=state; state="pause"; }
+ else if(state==="pause") state=pausedFrom;
 });
 
 function loop(now){
